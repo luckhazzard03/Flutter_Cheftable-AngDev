@@ -289,94 +289,111 @@ class _UserManagementPageState extends State<UserManagementPage> {
       body: Stack(
         children: [
           Padding(
-            padding: const EdgeInsets.all(10.0),
+            padding: const EdgeInsets.all(15.0),
             child: Column(
               children: [
                 // Mostrar el formulario solo si _isFormVisible es true
                 if (_isFormVisible)
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextFormField(
-                          controller: _nameController,
-                          decoration: const InputDecoration(
-                            labelText: 'Nombre',
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: _validateName,
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: _emailController,
-                          decoration: const InputDecoration(
-                            labelText: 'Correo electrónico',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.emailAddress,
-                          validator: _validateEmail,
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: _phoneController,
-                          decoration: const InputDecoration(
-                            labelText: 'Teléfono',
-                            border: OutlineInputBorder(),
-                          ),
-                          keyboardType: TextInputType.number,
-                          validator: _validatePhone,
-                        ),
-                        SizedBox(height: 10),
-                        TextFormField(
-                          controller: _passwordController,
-                          obscureText: true,
-                          decoration: const InputDecoration(
-                            labelText: 'Contraseña',
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: _validatePassword,
-                        ),
-                        SizedBox(height: 10),
-                        DropdownButtonFormField<String>(
-                          value: _selectedRole,
-                          hint: const Text('Selecciona un rol'),
-                          onChanged: (String? newValue) {
-                            setState(() {
-                              _selectedRole = newValue;
-                            });
-                          },
-                          items: <String>['Admin', 'Chef', 'Mesero']
-                              .map<DropdownMenuItem<String>>((String value) {
-                            return DropdownMenuItem<String>(
-                              value: value,
-                              child: Text(value),
-                            );
-                          }).toList(),
-                          decoration: const InputDecoration(
-                            border: OutlineInputBorder(),
-                          ),
-                          validator: (value) =>
-                              value == null ? 'Rol es requerido' : null,
-                        ),
-                        SizedBox(height: 10),
-                        ElevatedButton(
-                          onPressed: _addUser,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(214, 99, 219, 0),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            TextFormField(
+                              controller: _nameController,
+                              decoration: const InputDecoration(
+                                labelText: 'Nombre',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 9.0, horizontal: 16.0),
+                              ),
+                              validator: _validateName,
                             ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 20.0, vertical: 16.0),
-                          ),
-                          child: Text(_editingUser != null
-                              ? 'Actualizar Usuario'
-                              : 'Añadir Usuario'),
+                            SizedBox(height: 4),
+                            TextFormField(
+                              controller: _emailController,
+                              decoration: const InputDecoration(
+                                labelText: 'Correo electrónico',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 16.0),
+                              ),
+                              keyboardType: TextInputType.emailAddress,
+                              validator: _validateEmail,
+                            ),
+                            SizedBox(height: 4),
+                            TextFormField(
+                              controller: _phoneController,
+                              decoration: const InputDecoration(
+                                labelText: 'Teléfono',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 16.0),
+                              ),
+                              keyboardType: TextInputType.number,
+                              validator: _validatePhone,
+                            ),
+                            SizedBox(height: 4),
+                            TextFormField(
+                              controller: _passwordController,
+                              obscureText: true,
+                              decoration: const InputDecoration(
+                                labelText: 'Contraseña',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 16.0),
+                              ),
+                              validator: _validatePassword,
+                            ),
+                            SizedBox(height: 4),
+                            DropdownButtonFormField<String>(
+                              value: _selectedRole,
+                              hint: const Text('Selecciona un rol'),
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  _selectedRole = newValue;
+                                });
+                              },
+                              items: <String>[
+                                'Admin',
+                                'Chef',
+                                'Mesero'
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value),
+                                );
+                              }).toList(),
+                              decoration: const InputDecoration(
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 12.0, horizontal: 16.0),
+                              ),
+                              validator: (value) =>
+                                  value == null ? 'Rol es requerido' : null,
+                            ),
+                            SizedBox(height: 2),
+                            ElevatedButton(
+                              onPressed: _addUser,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(214, 99, 219, 0),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25.0),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 20.0, vertical: 8.0),
+                              ),
+                              child: Text(_editingUser != null
+                                  ? 'Actualizar Usuario'
+                                  : 'Añadir Usuario'),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                   ),
                 SizedBox(height: 24),
@@ -389,7 +406,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                   color: const Color.fromARGB(255, 0, 177, 38),
                   height: 2,
                 ),
-                SizedBox(height: 16),
+                SizedBox(height: 8),
                 Expanded(
                   child: ListView.builder(
                     itemCount: _users.length,
@@ -438,12 +455,12 @@ class _UserManagementPageState extends State<UserManagementPage> {
                 backgroundColor: const Color.fromARGB(214, 99, 219, 0),
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(50.0),
+                  borderRadius: BorderRadius.circular(30.0),
                 ),
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 20.0, vertical: 16.0),
+                    horizontal: 10.0, vertical: 10.0),
               ),
-              child: Text(_isFormVisible ? 'Ocultar Formulario' : 'ADD'),
+              child: Text(_isFormVisible ? 'DIS' : 'ADD'),
             ),
           ),
         ],

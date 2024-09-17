@@ -1,4 +1,9 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"  
+package="com.example.flutter_application_5">
+
+    <!-- Permiso de Internet -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:label="flutter_application_5"
         android:name="${applicationName}"

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_5/routes.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -36,11 +37,8 @@ class MyApp extends StatelessWidget {
     return GetMaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Cheftable',
-      routes: {
-        '/login': (context) => const LoginPage(),
-        '/user_management': (context) => const UserManagementPage(),
-      },
-      home: isLoggedIn ? const UserManagementPage() : const LoginPage(),
+      initialRoute: isLoggedIn ? AppRoutes.userManagement : AppRoutes.login,
+      getPages: AppPages.pages,
     );
   }
 }
