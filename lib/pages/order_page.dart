@@ -120,6 +120,8 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   }
 
   void _editOrder(Order order) {
+    print(
+        'Editing order: ${order.id}'); // Verificar que la orden seleccionada es la correcta
     setState(() {
       _editingOrder = order;
 
@@ -241,6 +243,23 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 20, 42, 59),
                     ),
+
+                    child: Column(
+                      children: [
+                        Image.asset(
+                          'assets/img/logo2.png',
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.contain,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Bienvenido!',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 30,
+                          ),
+
                     child: Align(
                       alignment: Alignment.bottomLeft,
                       child: Text(
@@ -249,6 +268,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
+
                         ),
                       ),
                     ),
@@ -473,8 +493,13 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
             ),
           ),
           Positioned(
+
+            bottom: 25.0,
+            right: 20.0,
+
             bottom: 10.0,
             right: 10.0,
+
             child: ElevatedButton(
               onPressed: () {
                 setState(() {
