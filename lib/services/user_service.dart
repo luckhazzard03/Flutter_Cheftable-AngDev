@@ -1,17 +1,15 @@
 // lib/services/user_service.dart
 import 'dart:convert';
-import 'package:flutter_application_5/utils/constans.dart';
 import 'package:http/http.dart' as http;
 import '../models/user.dart';
 
 class UserService {
   final String baseUrl;
 
-  UserService({this.baseUrl = baseUrlLogin});
+  UserService({this.baseUrl = 'http://tu-api-url.com/api/users/'});
 
-  // Obtener todos los usuarios
   Future<List<User>> fetchUsers() async {
-    final response = await http.get(Uri.parse('$baseUrlUsuarios'));
+    final response = await http.get(Uri.parse(baseUrl));
 
     if (response.statusCode == 200) {
       List jsonResponse = json.decode(response.body);
@@ -21,9 +19,8 @@ class UserService {
     }
   }
 
-  // Obtener un usuario por ID
   Future<User> fetchUserById(int id) async {
-    final response = await http.get(Uri.parse('$baseUrlUsuarios$id'));
+    final response = await http.get(Uri.parse('$baseUrl$id'));
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
@@ -33,13 +30,10 @@ class UserService {
     }
   }
 
-  // Crear un nuevo usuario
   Future<User> createUser(User user) async {
     final response = await http.post(
-      Uri.parse('$baseUrlUsuarios'),
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      Uri.parse(baseUrl),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: json.encode(user.toJson()),
     );
 
@@ -51,14 +45,10 @@ class UserService {
     }
   }
 
-  // Actualizar un usuario existente
   Future<User> updateUser(User user) async {
     final response = await http.put(
-      Uri.parse(
-          '$baseUrlUsuarios${user.idUsuario}'), // se usa la constante de constans.dart de los usuarios
-      headers: {
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
+      Uri.parse('$baseUrl${user.idUsuario}'),
+      headers: {'Content-Type': 'application/json; charset=UTF-8'},
       body: json.encode(user.toJson()),
     );
 
@@ -70,9 +60,8 @@ class UserService {
     }
   }
 
-  // Eliminar un usuario
   Future<void> deleteUser(int id) async {
-    final response = await http.delete(Uri.parse('$baseUrlUsuarios$id'));
+    final response = await http.delete(Uri.parse('$baseUrl$id'));
 
     if (response.statusCode != 204) {
       throw Exception('Failed to delete user');
