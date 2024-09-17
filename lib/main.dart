@@ -1,44 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application_5/routes.dart';
 import 'package:get/get.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'pages/login_page.dart';
-import 'pages/user_management_page.dart';
-import 'services/auth_service.dart';
+import 'package:flutter_application_5/routes.dart'; // Asegúrate de que la ruta sea correcta
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-
-  // Instanciar el AuthService
-  final AuthService authService = AuthService();
-
-  // Verificar si el usuario ya está autenticado
-  final SharedPreferences prefs = await SharedPreferences.getInstance();
-  final bool isLoggedIn = prefs.getBool('is_logged_in') ?? false;
-
-  runApp(
-    MultiProvider(
-      providers: [
-        Provider<AuthService>(create: (_) => authService),
-      ],
-      child: MyApp(isLoggedIn: isLoggedIn),
-    ),
-  );
+void main() {
+  runApp(MyApp());
 }
 
 class MyApp extends StatelessWidget {
-  final bool isLoggedIn;
-
-  const MyApp({Key? key, required this.isLoggedIn}) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
+    return GetMaterialApp
       debugShowCheckedModeBanner: false,
       title: 'Cheftable',
       initialRoute: isLoggedIn ? AppRoutes.userManagement : AppRoutes.login,
       getPages: AppPages.pages,
+      title: 'My Flutter App',
+      initialRoute: AppRoutes.login, // Ruta inicial de tu aplicación
+      getPages: AppPages.pages, // Configura las rutas
+      debugShowCheckedModeBanner: false, // Opcional: elimina el banner de depuración main
     );
   }
 }
