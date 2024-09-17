@@ -6,7 +6,7 @@ import '../models/user.dart';
 class UserService {
   final String baseUrl;
 
-  UserService({this.baseUrl = 'http://tu-api-url.com/api/users/'});
+  UserService({this.baseUrl = 'http://localhost:8080/usuarios'});
 
   Future<List<User>> fetchUsers() async {
     final response = await http.get(Uri.parse(baseUrl));

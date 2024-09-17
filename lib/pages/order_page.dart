@@ -275,205 +275,201 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(10.0),
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (_isFormVisible)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        TextField(
-                          controller: _dateController,
-                          decoration: const InputDecoration(
-                            labelText: 'Fecha',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 12.0),
-                          ),
-                          onTap: () => _selectDate(context),
-                          readOnly: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (_isFormVisible)
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      TextField(
+                        controller: _dateController,
+                        decoration: const InputDecoration(
+                          labelText: 'Fecha',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 12.0),
                         ),
-                        SizedBox(height: 8),
-                        TextField(
-                          controller: _timeController,
-                          decoration: const InputDecoration(
-                            labelText: 'Hora',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 12.0),
-                          ),
-                          onTap: () => _selectTime(context),
-                          readOnly: true,
+                        onTap: () => _selectDate(context),
+                        readOnly: true,
+                      ),
+                      SizedBox(height: 8),
+                      TextField(
+                        controller: _timeController,
+                        decoration: const InputDecoration(
+                          labelText: 'Hora',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 12.0),
                         ),
-                        SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          value: _selectedQuantity,
-                          items: _quantities.map((quantity) {
-                            return DropdownMenuItem<String>(
-                              value: quantity,
-                              child: Text(quantity),
-                            );
-                          }).toList(),
-                          decoration: const InputDecoration(
-                            labelText: 'Cantidad de platos',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 12.0),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedQuantity = value;
-                            });
-                          },
+                        onTap: () => _selectTime(context),
+                        readOnly: true,
+                      ),
+                      SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _selectedQuantity,
+                        items: _quantities.map((quantity) {
+                          return DropdownMenuItem<String>(
+                            value: quantity,
+                            child: Text(quantity),
+                          );
+                        }).toList(),
+                        decoration: const InputDecoration(
+                          labelText: 'Cantidad de platos',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 12.0),
                         ),
-                        SizedBox(height: 8),
-                        DropdownButtonFormField<String>(
-                          value: _selectedMenuType,
-                          items: _menuTypes.map((menuType) {
-                            return DropdownMenuItem<String>(
-                              value: menuType,
-                              child: Text(menuType),
-                            );
-                          }).toList(),
-                          decoration: const InputDecoration(
-                            labelText: 'Tipo de menú',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 12.0),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedMenuType = value;
-                            });
-                          },
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedQuantity = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      DropdownButtonFormField<String>(
+                        value: _selectedMenuType,
+                        items: _menuTypes.map((menuType) {
+                          return DropdownMenuItem<String>(
+                            value: menuType,
+                            child: Text(menuType),
+                          );
+                        }).toList(),
+                        decoration: const InputDecoration(
+                          labelText: 'Tipo de menú',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 12.0),
                         ),
-                        SizedBox(height: 8),
-                        DropdownButtonFormField<int>(
-                          value: _selectedTableId,
-                          items: _tableOptions.map((option) {
-                            return DropdownMenuItem<int>(
-                              value: option['value'] as int,
-                              child: Text(option['label']),
-                            );
-                          }).toList(),
-                          decoration: const InputDecoration(
-                            labelText: 'ID Mesa',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 12.0),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedTableId = value;
-                            });
-                          },
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedMenuType = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      DropdownButtonFormField<int>(
+                        value: _selectedTableId,
+                        items: _tableOptions.map((option) {
+                          return DropdownMenuItem<int>(
+                            value: option['value'] as int,
+                            child: Text(option['label']),
+                          );
+                        }).toList(),
+                        decoration: const InputDecoration(
+                          labelText: 'ID Mesa',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 12.0),
                         ),
-                        SizedBox(height: 8),
-                        DropdownButtonFormField<int>(
-                          value: _selectedUserId,
-                          items: _userOptions.map((option) {
-                            return DropdownMenuItem<int>(
-                              value: option['value'] as int,
-                              child: Text(option['label']),
-                            );
-                          }).toList(),
-                          decoration: const InputDecoration(
-                            labelText: 'ID Usuario',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 12.0),
-                          ),
-                          onChanged: (value) {
-                            setState(() {
-                              _selectedUserId = value;
-                            });
-                          },
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedTableId = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      DropdownButtonFormField<int>(
+                        value: _selectedUserId,
+                        items: _userOptions.map((option) {
+                          return DropdownMenuItem<int>(
+                            value: option['value'] as int,
+                            child: Text(option['label']),
+                          );
+                        }).toList(),
+                        decoration: const InputDecoration(
+                          labelText: 'ID Usuario',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 12.0),
                         ),
-                        SizedBox(height: 8),
-                        TextField(
-                          controller: _totalPriceController,
-                          keyboardType:
-                              TextInputType.numberWithOptions(decimal: true),
-                          decoration: const InputDecoration(
-                            labelText: 'Precio unitario',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                                vertical: 10.0, horizontal: 12.0),
-                          ),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedUserId = value;
+                          });
+                        },
+                      ),
+                      SizedBox(height: 8),
+                      TextField(
+                        controller: _totalPriceController,
+                        keyboardType:
+                            TextInputType.numberWithOptions(decimal: true),
+                        decoration: const InputDecoration(
+                          labelText: 'Precio unitario',
+                          border: OutlineInputBorder(),
+                          contentPadding: EdgeInsets.symmetric(
+                              vertical: 10.0, horizontal: 12.0),
                         ),
-                        SizedBox(height: 8),
-                        ElevatedButton(
-                          onPressed: _addOrder,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                const Color.fromARGB(214, 99, 219, 0),
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30.0),
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 30.0, vertical: 12.0),
+                      ),
+                      SizedBox(height: 8),
+                      ElevatedButton(
+                        onPressed: _addOrder,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor:
+                              const Color.fromARGB(214, 99, 219, 0),
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30.0),
                           ),
-                          child: Text(_editingOrder == null
-                              ? 'Añadir Comanda'
-                              : 'Actualizar Comanda'),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 30.0, vertical: 12.0),
                         ),
-                        SizedBox(height: 10),
-                      ],
-                    ),
-                  Text(
-                    'Comandas Creadas',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                        child: Text(_editingOrder == null
+                            ? 'Añadir Comanda'
+                            : 'Actualizar Comanda'),
+                      ),
+                      SizedBox(height: 10),
+                    ],
                   ),
-                  Container(
-                    height: 2,
-                    color: Colors.green,
-                    margin: const EdgeInsets.symmetric(vertical: 8.0),
+                Text(
+                  'Comandas Creadas',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
                   ),
-                  Container(
-                    height: MediaQuery.of(context).size.height *
-                        0.4, // Ajuste dinámico para evitar desbordamiento
-                    child: ListView.builder(
-                      itemCount: _orders.length,
-                      itemBuilder: (context, index) {
-                        final order = _orders[index];
-                        return Card(
-                          margin: const EdgeInsets.symmetric(vertical: 8.0),
-                          elevation: 5,
-                          child: ListTile(
-                            title: Text(
-                                'COMANDA ${index + 1}: \nFecha: ${order.fecha}, Hora: ${order.hora}'),
-                            subtitle: Text(
-                              'Cantidad: ${order.totalPlatos}, \n'
-                              'Precio: \$${(order.precioTotal ?? 0.0).toStringAsFixed(2)}, \n'
-                              'Menú: ${order.tipoMenu}, \n'
-                              'Usuario: ${order.idUsuarioFk}, \n'
-                              'Mesa: ${order.idMesaFk}',
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.edit, color: Colors.green),
-                                  onPressed: () => _editOrder(order),
-                                ),
-                                IconButton(
-                                  icon: Icon(Icons.delete, color: Colors.green),
-                                  onPressed: () => _deleteOrder(order),
-                                ),
-                              ],
-                            ),
+                ),
+                Container(
+                  height: 2,
+                  color: Colors.green,
+                  margin: const EdgeInsets.symmetric(vertical: 8.0),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: _orders.length,
+                    itemBuilder: (context, index) {
+                      final order = _orders[index];
+                      return Card(
+                        margin: const EdgeInsets.symmetric(vertical: 8.0),
+                        elevation: 5,
+                        child: ListTile(
+                          title: Text(
+                              'COMANDA ${index + 1}: \nFecha: ${order.fecha}, Hora: ${order.hora}'),
+                          subtitle: Text(
+                            'Cantidad: ${order.totalPlatos}, \n'
+                            'Precio: \$${(order.precioTotal ?? 0.0).toStringAsFixed(2)}, \n'
+                            'Menú: ${order.tipoMenu}, \n'
+                            'Usuario: ${order.idUsuarioFk}, \n'
+                            'Mesa: ${order.idMesaFk}',
                           ),
-                        );
-                      },
-                    ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.edit, color: Colors.green),
+                                onPressed: () => _editOrder(order),
+                              ),
+                              IconButton(
+                                icon: Icon(Icons.delete, color: Colors.green),
+                                onPressed: () => _deleteOrder(order),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           Positioned(

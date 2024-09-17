@@ -32,7 +32,7 @@ class AuthService {
       final response = await _dio.post(
         baseUrlLogin,
         data: jsonEncode({
-          'username': email,
+          'email': email,
           'password': password,
         }),
       );
@@ -58,13 +58,13 @@ class AuthService {
   }
 
   Future<void> _saveCredentials(String email, String hashedPassword) async {
-    await _storage.write(key: 'username', value: email);
+    await _storage.write(key: 'email', value: email);
     await _storage.write(key: 'password', value: hashedPassword);
   }
 
   Future<bool> validateCredentials(String email, String password) async {
     try {
-      String? storedUsername = await _storage.read(key: 'username');
+      String? storedUsername = await _storage.read(key: 'email');
       String? storedPassword = await _storage.read(key: 'password');
       String hashedPassword = hashPassword(password);
 
@@ -76,17 +76,16 @@ class AuthService {
   }
 
   Future<void> logout() async {
-    await _storage.delete(key: 'username');
+    await _storage.delete(key: 'email');
     await _storage.delete(key: 'password');
   }
 
-  // Future<void> testApiConnection() async {
-  //   try {
-  //     final response =
-  //         await _dio.get('/login'); // Cambia esto por un endpoint de prueba
-  //     print('API is reachable: ${response.data}');
-  //   } on DioException catch (e) {
-  //     print('Error connecting to API: ${e.message}');
-  //   }
-  // }
+  Future<void> testApiConnection() async {
+    try {
+      final response = await _dio.get(baseUrlLogin);
+      print('API is reachable: ${response.data}');
+    } on DioException catch (e) {
+      print('Error connecting to API: ${e.message}');
+    }
+  }
 }
