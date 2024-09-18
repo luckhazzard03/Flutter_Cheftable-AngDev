@@ -1,60 +1,45 @@
-// lib/models/user.dart
+import 'package:json_annotation/json_annotation.dart';
 
-// Necesario para formatear fechas si es necesario
+part 'user.g.dart';
 
+@JsonSerializable()
 class User {
-  int? idUsuario;
-  String? nombre;
-  String? password;
-  String? email;
-  String? telefono;
-  int? idRolesFk;
-  DateTime? createdAt;
-  DateTime? updatedAt;
+  final int idUsuario;
+  final String nombre;
+  final String email;
+  final String password;
+  final String telefono;
+  final int idRolesFk;
+  final DateTime createdAt;
+  final DateTime updatedAt;
 
   User({
-    this.idUsuario,
-    this.nombre,
-    required this.password,
+    required this.idUsuario,
+    required this.nombre,
     required this.email,
-    this.telefono,
-    this.idRolesFk,
-    this.createdAt,
-    this.updatedAt,
+    required this.password,
+    required this.telefono,
+    required this.idRolesFk,
+    required this.createdAt,
+    required this.updatedAt,
   });
 
-  // Factory constructor to create an instance from a JSON map
+  // Método toJson
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+
+  // Método fromJson
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      idUsuario: json['idUsuario'],
-      nombre: json['Nombre'],
-      password: json['Password'],
-      email: json['Email'],
-      telefono: json['Telefono'],
-      idRolesFk: json['idRoles_fk'],
-      createdAt: DateTime.parse(json['created_at']),
-      updatedAt: DateTime.parse(json['updated_at']),
+      idUsuario: int.parse(json['idUsuario']
+          .toString()), // Asegúrate de convertir los valores a int
+      nombre: json['nombre'] as String,
+      email: json['email'] as String,
+      idRolesFk: int.parse(
+          json['idRolesFk'].toString()), // Convertir a int si es necesario
+      telefono: json['telefono'] as String,
+      password: json['password'] as String,
+      createdAt: DateTime.parse(json['createdAt'] as String),
+      updatedAt: DateTime.parse(json['updatedAt'] as String),
     );
   }
-
-  // Method to convert an instance to a JSON map
-  Map<String, dynamic> toJson() {
-    return {
-      'idUsuario': idUsuario,
-      'Nombre': nombre,
-      'Password': password,
-      'Email': email,
-      'Telefono': telefono,
-      'idRoles_fk': idRolesFk,
-      'created_at': createdAt?.toIso8601String() ?? '',
-      'updated_at': updatedAt?.toIso8601String() ?? '',
-    };
-  }
 }
-// class User {
-//   String? nombre;
-//   String? email;
-//   String? password;
-
-//   User({required this.email, required this.password});
-// }

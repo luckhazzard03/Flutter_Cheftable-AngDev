@@ -61,7 +61,6 @@
 import 'package:flutter/material.dart';
 import '../services/user_service.dart';
 import '../models/user.dart';
-import 'package:dio/dio.dart';
 
 class UserController with ChangeNotifier {
   final UserService userService;
@@ -71,51 +70,51 @@ class UserController with ChangeNotifier {
 
   UserController(this.userService);
 
-  get selectedUser => null;
-
   Future<void> loadUsers() async {
-    isLoading = true;
-    notifyListeners();
     try {
-      users = await userService.fetchUsers();
+      final fetchedUsers = await userService.fetchUsers();
+      users = fetchedUsers;
     } catch (e) {
-      errorMessage = e.toString();
-    } finally {
-      isLoading = false;
-      notifyListeners();
+      // Manejar errores
+      print('Error loading users: $e');
     }
   }
 
-  Future<void> addUser(User user) async {
+  Future<List<User>> getUsers() async {
+    // Asegúrate de cargar los usuarios antes de devolverlos
+    if (users.isEmpty) {
+      await loadUsers();
+    }
+    return users;
+  }
+
+  Future<void> addUser(User newUser) async {
     try {
-      await userService.createUser(user);
-      users.add(user);
-      notifyListeners();
+      await userService
+          .createUser(newUser); // Llamada al servicio para agregar usuario
     } catch (e) {
-      errorMessage = e.toString();
+      throw Exception('Error al agregar usuario: $e');
     }
   }
 
-  Future<void> updateUser(User user) async {
+  Future<void> updateUser(User updatedUser) async {
     try {
-      await userService.updateUser(user);
-      final index = users.indexWhere((u) => u.idUsuario == user.idUsuario);
-      if (index != -1) {
-        users[index] = user;
-        notifyListeners();
-      }
+      await userService.updateUser(
+          updatedUser); // Llamada al servicio para actualizar usuario
     } catch (e) {
-      errorMessage = e.toString();
+      throw Exception('Error al actualizar usuario: $e');
     }
   }
 
-  Future<void> deleteUser(User user) async {
+  Future<void> deleteUser(int userId) async {
     try {
-      await userService.deleteUser(user.idUsuario!);
-      users.remove(user);
+      await userService.deleteUser(userId); // Llama al servicio para eliminar
+      // Actualiza el estado después de la eliminación si es necesario
+      users.removeWhere((user) => user.idUsuario == userId);
       notifyListeners();
     } catch (e) {
       errorMessage = e.toString();
+      notifyListeners();
     }
   }
 }
