@@ -1,70 +1,53 @@
 // lib/services/user_service.dart
-import 'dart:convert';
-import 'package:http/http.dart' as http;
+import 'package:dio/dio.dart';
 import '../models/user.dart';
 
 class UserService {
-  final String baseUrl;
+  final Dio _dio = Dio(); // Inicializa Dio para las solicitudes HTTP
 
-  UserService({this.baseUrl = 'http://localhost:8080/usuarios'});
+  // URL base de la API Fake
+  final String baseUrlUsuarios =
+      'https://66eacc1d55ad32cda47a70c7.mockapi.io/api/v2/usuarios';
 
+  // Método para obtener usuarios
   Future<List<User>> fetchUsers() async {
-    final response = await http.get(Uri.parse(baseUrl));
-
-    if (response.statusCode == 200) {
-      List jsonResponse = json.decode(response.body);
-      return jsonResponse.map((data) => User.fromJson(data)).toList();
-    } else {
-      throw Exception('Failed to load users');
+    try {
+      final response = await _dio.get(baseUrlUsuarios);
+      final List<dynamic> data = response.data;
+      return data.map((userJson) => User.fromJson(userJson)).toList();
+    } catch (e) {
+      throw Exception('Error fetching users: $e');
     }
   }
 
-  Future<User> fetchUserById(int id) async {
-    final response = await http.get(Uri.parse('$baseUrl$id'));
-
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      return User.fromJson(jsonResponse);
-    } else {
-      throw Exception('Failed to load user');
+  // Método para crear un usuario
+  Future<void> createUser(User user) async {
+    try {
+      final response = await _dio.post(baseUrlUsuarios, data: user.toJson());
+      print('Usuario creado con éxito: ${response.data}');
+    } catch (e) {
+      throw Exception('Error creating user: $e');
     }
   }
 
-  Future<User> createUser(User user) async {
-    final response = await http.post(
-      Uri.parse(baseUrl),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: json.encode(user.toJson()),
-    );
-
-    if (response.statusCode == 201) {
-      final jsonResponse = json.decode(response.body);
-      return User.fromJson(jsonResponse);
-    } else {
-      throw Exception('Failed to create user');
+  // Método para actualizar un usuario existente
+  Future<void> updateUser(User user) async {
+    try {
+      final response =
+          await _dio.put('$baseUrlUsuarios/${user.idUsuario}', data: user.toJson());
+      print('Usuario actualizado con éxito: ${response.data}');
+    } catch (e) {
+      throw Exception('Error updating user: $e');
     }
   }
 
-  Future<User> updateUser(User user) async {
-    final response = await http.put(
-      Uri.parse('$baseUrl${user.idUsuario}'),
-      headers: {'Content-Type': 'application/json; charset=UTF-8'},
-      body: json.encode(user.toJson()),
-    );
-
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      return User.fromJson(jsonResponse);
-    } else {
-      throw Exception('Failed to update user');
-    }
-  }
-
+  // Método para eliminar un usuario
   Future<void> deleteUser(int id) async {
-    final response = await http.delete(Uri.parse('$baseUrl$id'));
-
-    if (response.statusCode != 204) {
-      throw Exception('Failed to delete user');
+    try {
+      final response = await _dio.delete('$baseUrlUsuarios/$id');
+      print('Usuario eliminado con éxito: ${response.data}');
+    } catch (e) {
+      throw Exception('Error deleting user: $e');
     }
   }
 }

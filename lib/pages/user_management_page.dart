@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:crypto/crypto.dart';
+import 'package:flutter_application_5/services/user_service.dart';
 import 'dart:convert';
 import '../models/user.dart'; // Ajusta la ruta según tu estructura
+import '../controllers/user_controller.dart'; // Controlador que maneja la API
 import 'login_page.dart'; // Importa la página de inicio de sesión
 import 'order_page.dart';
 import 'package:shared_preferences/shared_preferences.dart'; // Asegúrate de importar la página de gestión de comandas
 
 class UserManagementPage extends StatefulWidget {
-  const UserManagementPage({super.key});
-
   @override
   _UserManagementPageState createState() => _UserManagementPageState();
 }
 
 class _UserManagementPageState extends State<UserManagementPage> {
-  final List<User> _users = [];
+  late final UserService userService;
+  late final UserController userController;
+
+  List<User> _users = [];
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
@@ -70,20 +73,28 @@ class _UserManagementPageState extends State<UserManagementPage> {
     return null;
   }
 
-  //
+  @override
+  void initState() {
+    super.initState();
+    userController = UserController(
+        UserService()); // Asegúrate de pasar una instancia válida de UserService
+    _loadUsers(); // Función de inicialización para cargar los usuarios al abrir la página
+  }
+
   void _clearForm() {
     _nameController.clear();
     _emailController.clear();
     _phoneController.clear();
     _passwordController.clear();
     setState(() {
-      _selectedRole = null; // Limpiar la selección del rol
-      _editingUser = null; // Limpiar la referencia del usuario en edición
-      _isFormVisible = false; // Ocultar el formulario
+      _selectedRole = null;
+      _editingUser = null;
+      _isFormVisible = false;
     });
   }
 
-  void _addUser() {
+  // Función modificada para usar el controlador
+  void _addUser() async {
     if (_formKey.currentState!.validate() && _selectedRole != null) {
       final name = _nameController.text;
       final email = _emailController.text;
@@ -93,44 +104,40 @@ class _UserManagementPageState extends State<UserManagementPage> {
 
       final hashedPassword = _hashPassword(password);
 
-      setState(() {
+      final newUser = User(
+        idUsuario: _editingUser?.idUsuario ?? 0,
+        nombre: name,
+        email: email,
+        password: hashedPassword,
+        telefono: phone,
+        idRolesFk: _roleToIdMap[role]!,
+        createdAt: _editingUser?.createdAt ?? DateTime.now(),
+        updatedAt: DateTime.now(),
+      );
+
+      try {
         if (_editingUser != null) {
-          // Editar usuario existente
-          final index = _users.indexOf(_editingUser!);
-          _users[index] = User(
-            idUsuario: _editingUser!
-                .idUsuario, // Mantener el ID existente para la edición
-            nombre: name,
-            email: email,
-            password: hashedPassword,
-            telefono: phone,
-            idRolesFk: _roleToIdMap[role]!, // Convertir el rol usando el mapa
-            createdAt: _editingUser!
-                .createdAt, // Mantener las fechas de creación y actualización
-            updatedAt: DateTime.now(), // Actualizar la fecha de modificación
-          );
+          await userController.updateUser(newUser);
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Usuario actualizado.')),
           );
         } else {
-          // Agregar nuevo usuario
-          _users.add(User(
-            idUsuario: 0, // El ID se asignará en la base de datos
-            nombre: name,
-            email: email,
-            password: hashedPassword,
-            telefono: phone,
-            idRolesFk: _roleToIdMap[role]!, // Convertir el rol usando el mapa
-            createdAt: DateTime.now(), // Fecha de creación
-            updatedAt: DateTime.now(), // Fecha de modificación
-          ));
+          await userController.addUser(newUser);
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Usuario creado.')),
+            SnackBar(
+              content: Text('Usuario creado con éxito: ${newUser.toJson()}'),
+            ),
           );
         }
 
-        _clearForm(); // Limpiar el formulario
-      });
+        // Recargar la lista de usuarios después de la operación
+        _loadUsers(); //  método  correctamente implementado
+        _clearForm();
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $error')),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -142,30 +149,45 @@ class _UserManagementPageState extends State<UserManagementPage> {
   String _hashPassword(String password) {
     final bytes = utf8.encode(password);
     final digest = sha256.convert(bytes);
-    return digest.toString().substring(0, 9);
+    return digest.toString().substring(0, 9); // Trunca el hash
   }
 
   void _editUser(User user) {
-    _nameController.text = user.nombre!;
-    _emailController.text = user.email!;
-    _phoneController.text = user.telefono!;
+    _nameController.text = user.nombre;
+    _emailController.text = user.email;
+    _phoneController.text = user.telefono;
     _passwordController.text =
-        ''; // Mantener la contraseña en blanco para evitar mostrarla
-    // Convertir idRolesFk a nombre del rol
+        ''; // Dejar en blanco para no mostrar la contraseña
     _selectedRole = _roleToIdMap.entries
         .firstWhere((entry) => entry.value == user.idRolesFk,
             orElse: () => MapEntry('', 0))
         .key;
     setState(() {
       _editingUser = user;
-      _isFormVisible = true; // Mostrar el formulario en modo edición
+      _isFormVisible = true;
     });
   }
 
-  void _deleteUser(User user) {
+  void _deleteUser(User user) async {
+    await userController.deleteUser(
+        user.idUsuario); // Usa user.idUsuario! para obtener el ID no nulo
     setState(() {
       _users.remove(user);
     });
+  }
+
+  // Cargar usuarios desde la API
+  void _loadUsers() async {
+    try {
+      final users = await userController.getUsers();
+      setState(() {
+        _users = users;
+      });
+      print('Usuarios cargados: ${_users.length}');
+      _users.forEach((user) => print('Usuario: ${user.nombre}'));
+    } catch (error) {
+      print('Error al cargar usuarios: $error');
+    }
   }
 
   void _logout() async {
@@ -416,7 +438,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
                         margin: const EdgeInsets.symmetric(vertical: 8.0),
                         elevation: 5,
                         child: ListTile(
-                          title: Text(user.nombre!),
+                          title: Text(user.nombre),
                           subtitle: Text(
                               'Correo: ${user.email} \nRol: ${user.idRolesFk}\nCel: ${user.telefono}\nContraseña: ${user.password}'),
                           trailing: Row(
@@ -442,6 +464,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
               ],
             ),
           ),
+          
           Positioned(
             bottom: 80.0, // Margen inferior
             right: 30.0, // Margen derecho

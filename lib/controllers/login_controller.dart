@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
-import '../models/user.dart';
+import '../models/userLogin.dart';
 import '../routes.dart'; // Importa las rutas
 import 'package:shared_preferences/shared_preferences.dart';
 

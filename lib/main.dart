@@ -3,8 +3,6 @@ import 'package:flutter_application_5/routes.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'pages/login_page.dart';
-import 'pages/user_management_page.dart';
 import 'services/auth_service.dart';
 
 void main() async {
