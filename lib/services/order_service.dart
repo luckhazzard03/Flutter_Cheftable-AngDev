@@ -1,77 +1,55 @@
 // lib/services/order_service.dart
-import 'dart:convert';
-import 'package:flutter_application_5/utils/constans.dart';
-import 'package:http/http.dart' as http;
+
+import 'package:dio/dio.dart';
 import '../models/order.dart';
+import '../utils/constans.dart';
 
 class OrderService {
-  final String baseUrl;
+  final Dio _dio = Dio(); // Inicializa Dio para las solicitudes HTTP
 
-  OrderService({this.baseUrl = baseUrlComandas});
+  // URL base de la API Fake
+  //final String baseUrlComandas =
+   //   'https://66eacc1d55ad32cda47a70c7.mockapi.io/api/v2/comandas';
 
+  // Método para obtener Comandas
   Future<List<Order>> fetchOrders() async {
     try {
-      final response = await http.get(Uri.parse('$baseUrlComandas'));
-
-      if (response.statusCode == 200) {
-        List jsonResponse = json.decode(response.body);
-        return jsonResponse.map((data) => Order.fromJson(data)).toList();
-      } else {
-        throw Exception('Failed to load orders');
-      }
+      final response = await _dio.get(baseUrlComandas);
+      final List<dynamic> data = response.data;
+      return data.map((comandaJson) => Order.fromJson(comandaJson)).toList();
     } catch (e) {
-      // En caso de error, puede lanzar una excepción o devolver una lista vacía
-      // dependiendo de cómo se maneja los errores en la aplicación.
-      throw Exception('Failed to load orders: $e');
+      throw Exception('Error fetching users: $e');
     }
   }
-}
 
-Future<Order> fetchOrderById(int id) async {
-  final response = await http.get(Uri.parse('$baseUrlComandas$id'));
-
-  if (response.statusCode == 200) {
-    final jsonResponse = json.decode(response.body);
-    return Order.fromJson(jsonResponse);
-  } else {
-    throw Exception('Failed to load order');
+  // Método para crear una Comanda
+  Future<void> createOrder(Order order) async {
+    try {
+      final response = await _dio.post(baseUrlComandas, data: order.toJson());
+      print('Usuario creado con éxito: ${response.data}');
+    } catch (e) {
+      throw Exception('Error creating user: $e');
+    }
   }
-}
 
-Future<Order> createOrder(Order order) async {
-  final response = await http.post(
-    Uri.parse('$baseUrlComandas'),
-    headers: {'Content-Type': 'application/json; charset=UTF-8'},
-    body: json.encode(order.toJson()),
-  );
-
-  if (response.statusCode == 201) {
-    final jsonResponse = json.decode(response.body);
-    return Order.fromJson(jsonResponse);
-  } else {
-    throw Exception('Failed to create order');
+  // Método para actualizar una Comanda existente
+  Future<void> updateOrder(Order order) async {
+    try {
+      final response =
+          await _dio.put('$baseUrlComandas/${order.id}', data: order.toJson());
+      print('Comanda actualizado con éxito: ${response.data}');
+    } catch (e) {
+      throw Exception('Error updating order: $e');
+    }
   }
-}
 
-Future<Order> updateOrder(Order order) async {
-  final response = await http.put(
-    Uri.parse('$baseUrlComandas${order.id}'),
-    headers: {'Content-Type': 'application/json; charset=UTF-8'},
-    body: json.encode(order.toJson()),
-  );
-
-  if (response.statusCode == 200) {
-    final jsonResponse = json.decode(response.body);
-    return Order.fromJson(jsonResponse);
-  } else {
-    throw Exception('Failed to update order');
-  }
-}
-
-Future<void> deleteOrder(int id) async {
-  final response = await http.delete(Uri.parse('$baseUrlComandas$id'));
-
-  if (response.statusCode != 204) {
-    throw Exception('Failed to delete order');
+ // Método para eliminar una Comanda
+  Future<void> deleteOrder(int id) async {
+    try {
+      final response = await _dio.delete('$baseUrlComandas/$id');
+      print('Comanda eliminada con éxito: ${response.data}');      
+    } catch (e) {
+      throw Exception('Error deleting order: $e');
+    }
   }
 }

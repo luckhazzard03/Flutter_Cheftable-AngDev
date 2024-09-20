@@ -1,5 +1,10 @@
+//import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
+
 import 'package:flutter/material.dart';
+import '../controllers/order_controller.dart';
 import 'package:flutter_application_5/pages/user_management_page.dart';
+import 'package:flutter_application_5/services/order_service.dart';
+//import 'dart:convert';
 import 'package:intl/intl.dart';
 import '../models/order.dart';
 import 'login_page.dart';
@@ -13,14 +18,23 @@ class OrderManagementPage extends StatefulWidget {
 }
 
 class _OrderManagementPageState extends State<OrderManagementPage> {
-  final List<Order> _orders = [];
+  late final OrderService orderService;
+  late final OrderController orderController;
+
+  List<Order> _orders = [];
+  final _formKey = GlobalKey<FormState>();
   final _dateController = TextEditingController();
   final _timeController = TextEditingController();
   final _totalPriceController = TextEditingController();
   final _quantityController = TextEditingController();
-
+  DateTime? _selectedDate;
+  TimeOfDay? _selectedTime;
+  String? _selectedQuantity;
+  String? _selectedMenuType;
+  int? _selectedUserId;
+  int? _selectedTableId;
   Order? _editingOrder;
-  bool _isFormVisible = false;
+  bool _isFormVisible = false; // Controla la visibilidad del formulario
 
   final List<Map<String, dynamic>> _tableOptions = List.generate(
     10,
@@ -39,92 +53,154 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
   final _dateFormat = DateFormat('yyyy-MM-dd');
   final _timeFormat = DateFormat('HH:mm');
 
-  DateTime? _selectedDate;
-  TimeOfDay? _selectedTime;
-  String? _selectedQuantity;
-  String? _selectedMenuType;
-  int? _selectedUserId;
-  int? _selectedTableId;
-
-  void _addOrder() {
-    final date = _dateController.text;
-    final time = _timeController.text;
-    final quantity = int.tryParse(_selectedQuantity ?? '') ?? 0;
-    final pricePerItem = double.tryParse(_totalPriceController.text) ?? 0.0;
-    final totalPrice = quantity * pricePerItem;
-    final menuType = _selectedMenuType ?? '';
-    final userId = _selectedUserId ?? 0;
-    final tableId = _selectedTableId ?? 0;
-
-    if (date.isEmpty ||
-        time.isEmpty ||
-        quantity <= 0 ||
-        pricePerItem <= 0 ||
-        menuType.isEmpty ||
-        userId <= 0 ||
-        tableId <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content:
-              const Text('Por favor, completa todos los campos correctamente.'),
-        ),
-      );
-      return;
+//Validacion de campos formulario Fecha
+  String? _validateDate(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Fecha es requerido';
     }
+    return null;
+  }
 
+//Validacion de campos formulario Hora
+  String? _validateTime(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Hora es requerido';
+    }
+    return null;
+  }
+
+//Validacion de campos formulario Total Platos
+  String? _validatePlatos(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Numero de platos es requerido';
+    }
+    return null;
+  }
+
+//Validacion de campos formulario Total Precio
+  String? _validateTotalPrice(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'El precio es requerido';
+    }
+    return null;
+  }
+
+//Validacion de campos formulario Tipo menu
+  String? _validateMenuType(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'Menu es requerido';
+    }
+    return null;
+  }
+
+//Validacion de campos formulario Tipo Menú
+  String? _validateTipoMenu(String? value) {
+    if (value == null || value.isEmpty) {
+      return 'El campo Menú es requerido';
+    }
+    return null;
+  }
+
+//Validacion de campos formulario Usuario Mesero
+  String? _validateUsuarioId(int? value) {
+    if (value == null || value <= 0) {
+      return 'Mesero id es requerido';
+    }
+    return null;
+  }
+
+//Validacion de campos formulario Mesa Id
+  String? _validateTableId(int? value) {
+    if (value == null || value <= 0) {
+      return 'La Mesa es requerido';
+    }
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    // Inicializar OrderService
+    orderService = OrderService();
+    // Inicializar OrderController con OrderService
+    orderController = OrderController(orderService);
+    _loadOrders(); // Cargar las órdenes al iniciar
+  }
+
+  void _clearForm() {
+    _dateController.clear();
+    _timeController.clear();
+    _totalPriceController.clear();
+    _quantityController.clear();
     setState(() {
-      if (_editingOrder == null) {
-        _orders.add(Order(
-          id: 0,
-          fecha: date,
-          hora: time,
-          totalPlatos: quantity,
-          precioTotal: totalPrice,
-          tipoMenu: menuType,
-          idUsuarioFk: userId,
-          idMesaFk: tableId,
-          createAt: DateTime.now().toIso8601String(),
-          updateAt: DateTime.now().toIso8601String(),
-        ));
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: const Text('Comanda creada'),
-          ),
-        );
-      } else {
-        final index = _orders.indexOf(_editingOrder!);
-        if (index != -1) {
-          _orders[index] = Order(
-            id: _editingOrder!.id,
-            fecha: date,
-            hora: time,
-            totalPlatos: quantity,
-            precioTotal: totalPrice,
-            tipoMenu: menuType,
-            idUsuarioFk: userId,
-            idMesaFk: tableId,
-            createAt: _editingOrder!.createAt,
-            updateAt: DateTime.now().toIso8601String(),
-          );
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: const Text('Comanda actualizada'),
-            ),
-          );
-        }
-        _editingOrder = null;
-      }
-
-      _clearFields();
+      _editingOrder = null;
+      _selectedMenuType = null;
+      _selectedUserId = null;
+      _selectedTableId = null;
+      _isFormVisible = false;
     });
   }
 
+  // Función modificada para usar el controlador
+  void _addOrder() async {
+    if (_formKey.currentState!.validate() && _selectedUserId != null) {
+      final date = _dateController.text;
+      final time = _timeController.text;
+      final quantity = int.tryParse(_selectedQuantity ?? '') ?? 0;
+      final pricePerItem = double.tryParse(_totalPriceController.text) ?? 0.0;
+      final totalPrice = quantity * pricePerItem;
+      final menuType = _selectedMenuType ?? '';
+      final userId = _selectedUserId ?? 0;
+      final tableId = _selectedTableId ?? 0;
+
+      final newOrder = Order(
+        id: _editingOrder?.id ?? 0,
+        fecha: date,
+        hora: time,
+        totalPlatos: quantity,
+        precioTotal: totalPrice,
+        tipoMenu: menuType,
+        idUsuarioFk: userId,
+        idMesaFk: tableId,
+        createAt: DateTime.now().toIso8601String(),
+        updateAt: DateTime.now().toIso8601String(),
+      );
+
+      try {
+        if (_editingOrder != null) {
+          await orderController.updateOrder(newOrder);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Comanda actualizado.')),
+          );
+        } else {
+          await orderController.addOrder(newOrder);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Comanda creada con éxito'),
+            ),
+          );
+        }
+
+        // Recargar la lista de Comandas después de la operación
+        _loadOrders(); //  método  correctamente implementado
+        //_clearForm();
+      } catch (error) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $error')),
+        );
+      }
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Completa todos los campos correctamente.')),
+      );
+    }
+  }
+
+  //Define una función llamada _editOrder que toma un objeto Order como parámetro.
   void _editOrder(Order order) {
-    print(
-        'Editing order: ${order.id}'); // Verificar que la orden seleccionada es la correcta
     setState(() {
       _editingOrder = order;
-
       _dateController.text = order.fecha ?? '';
       _timeController.text = order.hora ?? '';
       _selectedQuantity = order.totalPlatos.toString();
@@ -139,26 +215,50 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
       _selectedMenuType = order.tipoMenu;
       _selectedUserId = order.idUsuarioFk;
       _selectedTableId = order.idMesaFk;
+
+      // Asegúrate de que la forma del formulario sea visible
+      _isFormVisible = true;
     });
   }
 
-  void _deleteOrder(Order order) {
+  void _deleteOrder(Order order) async {
+    await orderController
+        .deleteOrder(order.id!); // Usa order.id! para obtener el ID no nulo
     setState(() {
       _orders.remove(order);
     });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Comanda eliminada con éxito'),
+        duration: Duration(seconds: 3), // Duración del mensaje en pantalla
+      ),
+    );
   }
 
-  void _clearFields() {
-    _dateController.clear();
-    _timeController.clear();
-    _totalPriceController.clear();
-    _quantityController.clear();
-    _selectedQuantity = null;
-    _selectedMenuType = null;
-    _selectedUserId = null;
-    _selectedTableId = null;
-    _selectedDate = null;
-    _selectedTime = null;
+  // Cargar Comanadas desde la API
+  void _loadOrders() async {
+    try {
+      final orders = await orderController.getOrders();
+      setState(() {
+        _orders = orders;
+      });
+      print('Comandas cargadas: ${_orders.length}');
+      _orders.forEach((order) => print('Comanda: ${order.id}'));
+    } catch (error) {
+      print('Error al cargar la Comanda: $error');
+    }
+  }
+
+  void _logout() async {
+    final SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('is_logged_in');
+
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (route) => false,
+    );
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -189,17 +289,6 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
         _timeController.text = picked.format(context);
       });
     }
-  }
-
-  void _logout() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.remove('is_logged_in');
-
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LoginPage()),
-      (route) => false,
-    );
   }
 
   @override
@@ -296,151 +385,166 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
           Padding(
             padding: const EdgeInsets.all(10.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              //crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (_isFormVisible)
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      TextField(
-                        controller: _dateController,
-                        decoration: const InputDecoration(
-                          labelText: 'Fecha',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 12.0),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            TextFormField(
+                              controller: _dateController,
+                              decoration: const InputDecoration(
+                                labelText: 'Fecha',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 12.0),
+                              ),
+                              validator: _validateDate,
+                              onTap: () => _selectDate(context),
+                              readOnly: true,
+                            ),
+                            SizedBox(height: 8),
+                            TextFormField(
+                              controller: _timeController,
+                              decoration: const InputDecoration(
+                                labelText: 'Hora',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 12.0),
+                              ),
+                              validator: _validateTime,
+                              onTap: () => _selectTime(context),
+                              readOnly: true,
+                            ),
+                            SizedBox(height: 8),
+                            DropdownButtonFormField<String>(
+                              validator: _validatePlatos,
+                              value: _selectedQuantity,
+                              items: _quantities.map((quantity) {
+                                return DropdownMenuItem<String>(
+                                  value: quantity,
+                                  child: Text(quantity),
+                                );
+                              }).toList(),
+                              decoration: const InputDecoration(
+                                labelText: 'Cantidad de platos',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 12.0),
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedQuantity = value;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 8),
+                            DropdownButtonFormField<String>(
+                              validator: _validateTipoMenu,
+                              value: _selectedMenuType,
+                              items: _menuTypes.map((menuType) {
+                                return DropdownMenuItem<String>(
+                                  value: menuType,
+                                  child: Text(menuType),
+                                );
+                              }).toList(),
+                              decoration: const InputDecoration(
+                                labelText: 'Tipo de menú',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 12.0),
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedMenuType = value;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 8),
+                            DropdownButtonFormField<int>(
+                              validator: _validateTableId,
+                              value: _selectedTableId,
+                              items: _tableOptions.map((option) {
+                                return DropdownMenuItem<int>(
+                                  value: option['value'] as int,
+                                  child: Text(option['label']),
+                                );
+                              }).toList(),
+                              decoration: const InputDecoration(
+                                labelText: 'ID Mesa',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 12.0),
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedTableId = value;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 8),
+                            DropdownButtonFormField<int>(
+                              validator: _validateUsuarioId,
+                              value: _selectedUserId,
+                              items: _userOptions.map((option) {
+                                return DropdownMenuItem<int>(
+                                  value: option['value'] as int,
+                                  child: Text(option['label']),
+                                );
+                              }).toList(),
+                              decoration: const InputDecoration(
+                                labelText: 'ID Usuario',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 12.0),
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _selectedUserId = value;
+                                });
+                              },
+                            ),
+                            SizedBox(height: 8),
+                            TextFormField(
+                              controller: _totalPriceController,
+                              keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true),
+                              decoration: const InputDecoration(
+                                labelText: 'Precio unitario',
+                                border: OutlineInputBorder(),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: 10.0, horizontal: 12.0),
+                              ),
+                              validator: _validateTotalPrice,
+                            ),
+                            SizedBox(height: 8),
+                            ElevatedButton(
+                              onPressed: _addOrder,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    const Color.fromARGB(214, 99, 219, 0),
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 30.0, vertical: 12.0),
+                              ),
+                              child: Text(_editingOrder != null
+                                  ? 'Actualizar Comanda'
+                                  : 'Añadir Comanda'),
+                            ),
+                            SizedBox(height: 10),
+                          ],
                         ),
-                        onTap: () => _selectDate(context),
-                        readOnly: true,
                       ),
-                      SizedBox(height: 8),
-                      TextField(
-                        controller: _timeController,
-                        decoration: const InputDecoration(
-                          labelText: 'Hora',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 12.0),
-                        ),
-                        onTap: () => _selectTime(context),
-                        readOnly: true,
-                      ),
-                      SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: _selectedQuantity,
-                        items: _quantities.map((quantity) {
-                          return DropdownMenuItem<String>(
-                            value: quantity,
-                            child: Text(quantity),
-                          );
-                        }).toList(),
-                        decoration: const InputDecoration(
-                          labelText: 'Cantidad de platos',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 12.0),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedQuantity = value;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: _selectedMenuType,
-                        items: _menuTypes.map((menuType) {
-                          return DropdownMenuItem<String>(
-                            value: menuType,
-                            child: Text(menuType),
-                          );
-                        }).toList(),
-                        decoration: const InputDecoration(
-                          labelText: 'Tipo de menú',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 12.0),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedMenuType = value;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 8),
-                      DropdownButtonFormField<int>(
-                        value: _selectedTableId,
-                        items: _tableOptions.map((option) {
-                          return DropdownMenuItem<int>(
-                            value: option['value'] as int,
-                            child: Text(option['label']),
-                          );
-                        }).toList(),
-                        decoration: const InputDecoration(
-                          labelText: 'ID Mesa',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 12.0),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedTableId = value;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 8),
-                      DropdownButtonFormField<int>(
-                        value: _selectedUserId,
-                        items: _userOptions.map((option) {
-                          return DropdownMenuItem<int>(
-                            value: option['value'] as int,
-                            child: Text(option['label']),
-                          );
-                        }).toList(),
-                        decoration: const InputDecoration(
-                          labelText: 'ID Usuario',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 12.0),
-                        ),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedUserId = value;
-                          });
-                        },
-                      ),
-                      SizedBox(height: 8),
-                      TextField(
-                        controller: _totalPriceController,
-                        keyboardType:
-                            TextInputType.numberWithOptions(decimal: true),
-                        decoration: const InputDecoration(
-                          labelText: 'Precio unitario',
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(
-                              vertical: 10.0, horizontal: 12.0),
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: _addOrder,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor:
-                              const Color.fromARGB(214, 99, 219, 0),
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30.0),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 30.0, vertical: 12.0),
-                        ),
-                        child: Text(_editingOrder == null
-                            ? 'Añadir Comanda'
-                            : 'Actualizar Comanda'),
-                      ),
-                      SizedBox(height: 10),
-                    ],
+                    ),
                   ),
+                SizedBox(height: 24),
                 Text(
                   'Comandas Creadas',
                   style: TextStyle(
@@ -448,11 +552,13 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+                SizedBox(height: 8),
                 Container(
                   height: 2,
                   color: Colors.green,
                   margin: const EdgeInsets.symmetric(vertical: 8.0),
                 ),
+                SizedBox(height: 8),
                 Expanded(
                   child: ListView.builder(
                     itemCount: _orders.length,

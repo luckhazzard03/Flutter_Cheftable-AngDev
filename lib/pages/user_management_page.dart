@@ -125,7 +125,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
           await userController.addUser(newUser);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Usuario creado con éxito: ${newUser.toJson()}'),
+              content: Text('Usuario creado con éxito'),
             ),
           );
         }
@@ -169,11 +169,18 @@ class _UserManagementPageState extends State<UserManagementPage> {
   }
 
   void _deleteUser(User user) async {
-    await userController.deleteUser(
-        user.idUsuario); // Usa user.idUsuario! para obtener el ID no nulo
+    await userController.deleteUser(user.idUsuario); // Elimina al usuario
     setState(() {
-      _users.remove(user);
+      _users.remove(user); // Elimina al usuario de la lista
     });
+
+    // Mostrar mensaje de éxito en un Snackbar
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Usuario eliminado con éxito'),
+        duration: Duration(seconds: 3), // Duración del mensaje en pantalla
+      ),
+    );
   }
 
   // Cargar usuarios desde la API
@@ -464,7 +471,6 @@ class _UserManagementPageState extends State<UserManagementPage> {
               ],
             ),
           ),
-          
           Positioned(
             bottom: 80.0, // Margen inferior
             right: 30.0, // Margen derecho
