@@ -20,14 +20,14 @@ Order _$OrderFromJson(Map<String, dynamic> json) => Order(
     );
 
 Map<String, dynamic> _$OrderToJson(Order instance) => <String, dynamic>{
-      'Comanda_id': instance.id,
+      'id': instance.id,
       'fecha': instance.fecha,
       'hora': instance.hora,
-      'Total_platos': instance.totalPlatos,
-      'Precio_Total': instance.precioTotal,
-      'Tipo_Menu': instance.tipoMenu,
-      'idUsuario_fk': instance.idUsuarioFk,
-      'idMesa_fk': instance.idMesaFk,
+      'totalPlatos': instance.totalPlatos,
+      'precioTotal': instance.precioTotal,
+      'tipoMenu': instance.tipoMenu,
+      'idUsuarioFk': instance.idUsuarioFk,
+      'idMesaFk': instance.idMesaFk,
       'create_at': instance.createAt,
       'update_at': instance.updateAt,
     };
