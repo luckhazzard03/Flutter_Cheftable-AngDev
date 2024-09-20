@@ -332,6 +332,7 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                     decoration: BoxDecoration(
                       color: const Color.fromARGB(255, 20, 42, 59),
                     ),
+
                     child: Column(
                       children: [
                         Image.asset(
@@ -347,8 +348,18 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
                             color: Colors.white,
                             fontSize: 30,
                           ),
+
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
+                      child: Text(
+                        'Bienvenido!',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+
                         ),
-                      ],
+                      ),
                     ),
                   ),
                   ListTile(
@@ -588,8 +599,13 @@ class _OrderManagementPageState extends State<OrderManagementPage> {
             ),
           ),
           Positioned(
+
             bottom: 25.0,
             right: 20.0,
+
+            bottom: 10.0,
+            right: 10.0,
+
             child: ElevatedButton(
               onPressed: () {
                 setState(() {
